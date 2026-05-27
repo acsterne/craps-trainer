@@ -105,7 +105,7 @@ Note: Buy 4/10 is worse than Place 4/10 — Kenji will flag this. Buy 6/8 is wor
 | Hop (easy) | 15:1 | 11.11% | Bet on a specific dice combo with 2 ways to make it (e.g., 3+2) |
 | Hop (hard) | 30:1 | 13.89% | Bet on a specific doubles combo (e.g., 2+2) — one way to make it |
 
-Hop bets are shown on the table layout but marked as advanced. Kenji explains them if clicked but discourages them.
+All bets shown prominently on the table. Kenji explains them with full enthusiasm — he's honest about the house edge but never discourages. Horn and hop bets get extra flavor commentary ("bold choice — the house respects the chaos").
 
 ---
 

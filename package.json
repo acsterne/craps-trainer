@@ -17,6 +17,7 @@
     "uuid": "^14.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/howler": "^2.2.13",
     "@types/jest": "^30.0.0",

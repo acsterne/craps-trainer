@@ -11,11 +11,13 @@ const DEFAULT_COLORS = { bg: '#1a6630', border: '#2a9948', text: '#fff' }
 
 interface ActiveBetChipProps {
   bet: Bet
+  index?: number
   onClick?: (e: React.MouseEvent) => void
 }
 
-export function ActiveBetChip({ bet, onClick }: ActiveBetChipProps) {
+export function ActiveBetChip({ bet, index = 0, onClick }: ActiveBetChipProps) {
   const colors = CHIP_COLORS[bet.amount] ?? DEFAULT_COLORS
+  const offset = index * 3
   return (
     <button
       onClick={onClick}
@@ -28,12 +30,12 @@ export function ActiveBetChip({ bet, onClick }: ActiveBetChipProps) {
         backgroundColor: colors.bg,
         borderColor: colors.border,
         color: colors.text,
-        zIndex: 10,
+        zIndex: 10 + index,
         fontSize: '0.55rem',
         top: '50%',
         left: '50%',
-        transform: 'translate(-50%, -50%)',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.5)',
+        transform: `translate(calc(-50% + ${offset}px), calc(-50% - ${offset}px))`,
+        boxShadow: `0 ${2 + index}px ${6 + index * 2}px rgba(0,0,0,0.6)`,
       }}
     >
       ${bet.amount}

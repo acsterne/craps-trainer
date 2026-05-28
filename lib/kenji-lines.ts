@@ -243,8 +243,10 @@ export const ROLL_MESSAGES = {
       `${point}. The point. Pass Line pays even money, odds pay at true rates. A good result. New come-out roll now.`,
     sevenOut: () =>
       "Seven out. The round ends. Pass Line loses, Don't Pass wins, place bets lose, come points lose. New shooter coming. This is how craps works — the seven takes everything when the point is set.",
-    continue: (sum: number) =>
-      `${sum}. No resolution on the main line. Active bets carry over. Keep rolling.`,
+    continue: (sum: number, point: number | null, hadSideBetWin: boolean) =>
+      hadSideBetWin
+        ? `Rolled ${sum}. Not the point (${point}) and not a 7, so your Pass Line bet is still waiting. Your other bets (Place, Field, etc.) paid out — that's where the money came from. Keep rolling.`
+        : `Rolled ${sum}. Not the point (${point}), not a 7 — nothing happens to your bets. Keep rolling.`,
   },
   comeTravel: (sum: number) =>
     `Your Come bet moved to the ${sum}. It now works like a Pass Line bet — needs a ${sum} before a 7. You can place free odds on it by clicking it.`,

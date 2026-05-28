@@ -4,6 +4,7 @@ import { createContext, useContext, useReducer, useRef, ReactNode } from 'react'
 import type { GameState, Bet, BetType, BetResult } from './craps-types'
 import { resolveRoll, rollDice } from './craps-engine'
 import { getFlavorLine, getBetKenjiLine, ROLL_MESSAGES } from './kenji-lines'
+import { getBetLabel } from './bet-descriptions'
 import { audio } from './audio'
 import { v4 as uuid } from 'uuid'
 
@@ -32,12 +33,31 @@ const ONE_ROLL_TYPES: BetType[] = [
   'field', 'any7', 'anyCraps', 'yo', 'aces', 'three', 'boxcars', 'horn', 'hopEasy', 'hopHard',
 ]
 
-function kenjiLineForRoll(result: ReturnType<typeof resolveRoll>, prevPhase: GameState['phase']): string {
+function buildPayoutSuffix(results: BetResult[]): string {
+  const wins = results.filter(r => r.outcome === 'win')
+  const losses = results.filter(r => r.outcome === 'lose')
+  if (wins.length === 0 && losses.length === 0) return ''
+  const parts: string[] = []
+  if (wins.length > 0) {
+    const profit = wins.reduce((sum, r) => sum + r.payout - r.bet.amount, 0)
+    const names = wins.map(r => getBetLabel(r.bet.type, r.bet.number)).join(', ')
+    parts.push(`${names} won +$${profit}`)
+  }
+  if (losses.length > 0) {
+    const lost = losses.reduce((sum, r) => sum + r.bet.amount, 0)
+    const names = losses.map(r => getBetLabel(r.bet.type, r.bet.number)).join(', ')
+    parts.push(`${names} lost -$${lost}`)
+  }
+  return ` (${parts.join(' · ')})`
+}
+
+function kenjiLineForRoll(result: ReturnType<typeof resolveRoll>, prevPhase: GameState['phase'], currentPoint: number | null): string {
   const { sum, nextPhase, nextPoint } = result
+  const suffix = buildPayoutSuffix(result.results)
 
   if (prevPhase === 'comeOut') {
-    if (sum === 7 || sum === 11) return ROLL_MESSAGES.comeOut.natural(sum)
-    if ([2, 3, 12].includes(sum)) return ROLL_MESSAGES.comeOut.craps(sum)
+    if (sum === 7 || sum === 11) return ROLL_MESSAGES.comeOut.natural(sum) + suffix
+    if ([2, 3, 12].includes(sum)) return ROLL_MESSAGES.comeOut.craps(sum) + suffix
     return ROLL_MESSAGES.comeOut.pointSet(nextPoint!)
   }
 
@@ -51,13 +71,14 @@ function kenjiLineForRoll(result: ReturnType<typeof resolveRoll>, prevPhase: Gam
   }
 
   if (nextPhase === 'comeOut' && nextPoint === null) {
-    if (sum === 7) return ROLL_MESSAGES.point.sevenOut()
-    return ROLL_MESSAGES.point.hitPoint(sum)
+    if (sum === 7) return ROLL_MESSAGES.point.sevenOut() + suffix
+    return ROLL_MESSAGES.point.hitPoint(sum) + suffix
   }
 
   // 30% chance of flavor commentary, otherwise explain the roll
-  if (Math.random() < 0.3) return getFlavorLine()
-  return ROLL_MESSAGES.point.continue(sum)
+  const hadSideBetWin = result.results.some(r => r.outcome === 'win')
+  if (Math.random() < 0.3 && !hadSideBetWin) return getFlavorLine()
+  return ROLL_MESSAGES.point.continue(sum, currentPoint, hadSideBetWin) + suffix
 }
 
 function reducer(state: GameState, action: Action): GameState {
@@ -163,7 +184,7 @@ function reducer(state: GameState, action: Action): GameState {
         rollHistory: newHistory,
         lastRoll: result.dice,
         lastResults: result.results,
-        kenjiLine: kenjiLineForRoll(result, prevPhase),
+        kenjiLine: kenjiLineForRoll(result, prevPhase, state.point),
         isRolling: false,
       }
     }

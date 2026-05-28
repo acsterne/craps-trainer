@@ -4,10 +4,10 @@ import { audio } from '@/lib/audio'
 import { useState } from 'react'
 
 const CHIPS = [
-  { value: 1,   bg: '#e8e4d8', border: '#aaa898', text: '#2a2010' },
-  { value: 5,   bg: '#b02020', border: '#d04040', text: '#fff' },
-  { value: 25,  bg: '#1a6630', border: '#2a9948', text: '#fff' },
-  { value: 100, bg: '#0a0a1a', border: '#c9a84c', text: '#c9a84c' },
+  { value: 1,   bg: '#2d333b', border: '#6e7681', text: '#e6edf3' },
+  { value: 5,   bg: '#3d1515', border: '#f85149', text: '#f85149' },
+  { value: 25,  bg: '#0f2d13', border: '#3fb950', text: '#3fb950' },
+  { value: 100, bg: '#1a1206', border: '#c9a84c', text: '#c9a84c' },
 ]
 
 export function ChipRack() {
@@ -21,7 +21,7 @@ export function ChipRack() {
 
   function toggleMute() {
     if (muted) { audio.unmuteAll(); setMuted(false) }
-    else { audio.muteAll(); setMuted(true) }
+    else        { audio.muteAll();   setMuted(true)  }
   }
 
   const broke = state.bankroll <= 0 && state.bets.length === 0
@@ -29,24 +29,19 @@ export function ChipRack() {
   if (broke) {
     return (
       <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
         padding: '10px 16px',
-        borderTop: '1px solid rgba(201,168,76,0.2)',
+        borderTop: '1px solid #21262d',
+        background: '#161b22',
       }}>
-        <span style={{ color: '#c8c0b0', fontFamily: 'Georgia, serif', fontSize: 13 }}>
-          Bankroll empty.
-        </span>
+        <span style={{ color: '#7d8590', fontSize: '0.8rem' }}>Bankroll empty.</span>
         <button
           onClick={() => dispatch({ type: 'REBUY' })}
           style={{
-            padding: '6px 18px',
-            backgroundColor: '#c9a84c',
-            color: '#0f0a0a',
-            fontFamily: 'Georgia, serif',
-            fontWeight: 700,
-            fontSize: 13,
-            borderRadius: 6,
-            border: '2px solid #e8c96a',
+            padding: '7px 18px',
+            background: '#238636', color: '#fff',
+            fontWeight: 600, fontSize: '0.82rem',
+            borderRadius: 6, border: '1px solid #3fb950',
             cursor: 'pointer',
           }}
         >
@@ -56,79 +51,85 @@ export function ChipRack() {
     )
   }
 
+  const canRoll = !state.isRolling && state.bets.length > 0
+
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 12,
+      display: 'flex', alignItems: 'center', gap: 10,
       padding: '8px 14px',
-      borderTop: '1px solid rgba(201,168,76,0.18)',
+      borderTop: '1px solid #21262d',
+      background: '#161b22',
     }}>
       {/* Chip selector */}
-      <div style={{ display: 'flex', gap: 8 }}>
-        {CHIPS.map(({ value, bg, border, text }) => (
-          <button
-            key={value}
-            onClick={() => dispatch({ type: 'SELECT_CHIP', value })}
-            className="chip"
-            style={{
-              width: 42, height: 42,
-              backgroundColor: bg,
-              borderColor: border,
-              color: text,
-              boxShadow: state.selectedChipValue === value
-                ? `0 0 0 3px #c9a84c, 0 2px 8px rgba(0,0,0,0.6)`
-                : '0 2px 6px rgba(0,0,0,0.5)',
-              transform: state.selectedChipValue === value ? 'scale(1.12)' : 'scale(1)',
-            }}
-          >
-            ${value}
-          </button>
-        ))}
+      <div style={{ display: 'flex', gap: 6 }}>
+        {CHIPS.map(({ value, bg, border, text }) => {
+          const selected = state.selectedChipValue === value
+          return (
+            <button
+              key={value}
+              onClick={() => dispatch({ type: 'SELECT_CHIP', value })}
+              className="chip"
+              style={{
+                width: 40, height: 40,
+                backgroundColor: bg,
+                borderColor: border,
+                color: text,
+                boxShadow: selected ? `0 0 0 2px ${border}` : 'none',
+                transform: selected ? 'scale(1.1)' : 'scale(1)',
+              }}
+            >
+              ${value}
+            </button>
+          )
+        })}
       </div>
 
       {/* Bankroll */}
       <div style={{ flex: 1, textAlign: 'center' }}>
-        <div style={{ color: '#c8c0b0', fontSize: '0.6rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'Georgia, serif' }}>
+        <div style={{ color: '#7d8590', fontSize: '0.58rem', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
           Bankroll
         </div>
-        <div style={{ color: '#c9a84c', fontSize: 20, fontFamily: 'Georgia, serif', fontWeight: 700 }}>
+        <div style={{ color: '#c9a84c', fontSize: '1.1rem', fontWeight: 700 }}>
           ${state.bankroll.toLocaleString()}
         </div>
       </div>
 
-      {/* Sound toggle */}
+      {/* Sound */}
       <button
         onClick={toggleMute}
-        title={muted ? 'Unmute' : 'Mute'}
         style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: muted ? '#666' : '#c8c0b0',
-          fontSize: 18, padding: '0 6px',
-          fontFamily: 'Georgia, serif',
+          background: 'none',
+          border: '1px solid #30363d',
+          cursor: 'pointer',
+          color: muted ? '#484f58' : '#7d8590',
+          fontSize: '0.72rem',
+          padding: '5px 10px',
+          borderRadius: 6,
+          display: 'flex', alignItems: 'center', gap: 5,
         }}
       >
-        {muted ? '🔇' : '♪'}
+        <span>{muted ? '🔇' : '♪'}</span>
+        <span>{muted ? 'Off' : 'On'}</span>
       </button>
 
       {/* Roll button */}
       <button
         onClick={handleRoll}
-        disabled={state.isRolling || state.bets.length === 0}
+        disabled={!canRoll}
         style={{
-          padding: '8px 24px',
-          backgroundColor: state.isRolling || state.bets.length === 0 ? '#4a3a20' : '#c9a84c',
-          color: state.isRolling || state.bets.length === 0 ? '#7a6040' : '#0f0a0a',
-          fontFamily: 'Georgia, serif',
+          padding: '8px 28px',
+          background: canRoll ? '#238636' : '#21262d',
+          color: canRoll ? '#fff' : '#484f58',
           fontWeight: 700,
-          fontSize: 14,
-          letterSpacing: '0.1em',
+          fontSize: '0.85rem',
+          letterSpacing: '0.06em',
           borderRadius: 8,
-          border: '2px solid',
-          borderColor: state.isRolling || state.bets.length === 0 ? '#6a5030' : '#e8c96a',
-          cursor: state.isRolling || state.bets.length === 0 ? 'not-allowed' : 'pointer',
+          border: `1px solid ${canRoll ? '#3fb950' : '#30363d'}`,
+          cursor: canRoll ? 'pointer' : 'not-allowed',
           transition: 'all 0.15s',
         }}
       >
-        {state.isRolling ? 'Rolling...' : 'Roll Dice'}
+        {state.isRolling ? 'Rolling…' : 'Roll Dice'}
       </button>
     </div>
   )
